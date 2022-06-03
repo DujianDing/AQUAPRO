@@ -4,9 +4,10 @@ from collections import defaultdict
 from aquapro_util import load_data, SUPG, preprocess_dist, preprocess_ranks, preprocess_topk_phi, preprocess_sync
 from aquapro_util import draw_sample_s_m, compute_optm, array_union, find_K_pt, set_diff, find_best_sm
 from numba import njit
-from hyper_parameter import norm_scale, eps, pilot_size, pilot_eps, std_offset, repeat, num_query
+from hyper_parameter import norm_scale, eps, pilot_size, pilot_eps, std_offset, repeat
 import numpy as np
 import pickle
+from pathlib import Path
 
 import time
 
@@ -381,6 +382,7 @@ def exp_PQA_maximal_CR(oracle, proxy, index, pt=0.9, rt=0.9, t=0.9, prob=0.9, fn
 
     if not is_precompile:
         backup_res = [scale_list, pt_k_recall, pt_k_success, rt_k_precis, rt_k_success, prob]
+        Path("./results/PQA/").mkdir(parents=True, exist_ok=True)
         pickle.dump(backup_res, open('results/PQA/'+fname+'.pkl', 'wb'))
 
 
@@ -468,6 +470,7 @@ def exp_CSC_minimal_cost(oracle, proxy, index, pt=0.9, rt=0.9, t=0.9, prob=0.9, 
 
     if not is_precompile:
         backup_res = [mode_list, pt_cost, pt_success, rt_cost, rt_success, prob]
+        Path("./results/CSC/").mkdir(parents=True, exist_ok=True)
         pickle.dump(backup_res, open('results/CSC/'+fname+'.pkl', 'wb'))
 
 
@@ -496,6 +499,7 @@ def exp_CSC_cpu_overhead(oracle, proxy, index, pt=0.9, rt=0.9, t=0.9, prob=0.9, 
                     end_time = time.time()
                     pt_overhead[mode].append(end_time - start_time)
     backup_res = [mode_list, rt_overhead, pt_overhead]
+    Path("./results/overhead/").mkdir(parents=True, exist_ok=True)
     pickle.dump(backup_res, open('results/overhead/'+fname+'.pkl', 'wb'))
 
 
@@ -597,6 +601,7 @@ def exp_comprehensive_comparison(oracle, proxy, index, pt=0.9, rt=0.9, t=0.9, pr
     method_list = ['PQE', 'CSE', 'SUPG']
     backup_res = [method_list, scale_list, PQE_PT, CSE_PT_stats, SUPG_PT,
                   PQE_RT, CSE_RT_stats, SUPG_RT, prob]
+    Path("./results/CMPR/").mkdir(parents=True, exist_ok=True)
     pickle.dump(backup_res, open('results/CMPR/' + fname + '.pkl', 'wb'))
 
 
@@ -707,10 +712,11 @@ def exp_runningtime(oracle, proxy, index, pt=0.9, rt=0.9, t=0.9, prob=0.9, fname
     price_l = np.arange(10) / 100
     backup_res = [price_l, PQE_PT_stats, CSE_PT_stats, SUPG_PT_stats,
                   PQE_RT_stats, CSE_RT_stats, SUPG_RT_stats, prob]
+    Path("./results/runningtime/").mkdir(parents=True, exist_ok=True)
     pickle.dump(backup_res, open('results/runningtime/' + fname + '.pkl', 'wb'))
 
 
-def exp_scalability_test(pt=0.9, rt=0.9, t=0.9, prob=0.9, fname=''):
+def exp_scalability_test(pt=0.9, rt=0.9, t=0.9, prob=0.9, fname='', n_query=50):
     proxy, oracle = load_data(name=fname)
     scale_list = (np.arange(4) + 1) / 4
     subset_sizes = [int(scale * len(oracle)) for scale in scale_list]
@@ -736,7 +742,7 @@ def exp_scalability_test(pt=0.9, rt=0.9, t=0.9, prob=0.9, fname=''):
         subset_proxy = proxy[subset]
 
         np.random.seed(1)
-        index = np.random.choice(range(subset_size), size=num_query, replace=False)
+        index = np.random.choice(range(subset_size), size=n_query, replace=False)
 
         for i in range(len(index)):
             proxy_dist, oracle_dist = preprocess_dist(subset_oracle, subset_proxy, subset_oracle[[index[i]]])
@@ -807,6 +813,7 @@ def exp_scalability_test(pt=0.9, rt=0.9, t=0.9, prob=0.9, fname=''):
                 PQE_RT_stats[subset_size]['overhead'].append(PQE_RT_end - PQE_RT_start)
     backup_res = [subset_sizes, PQE_PT_stats, CSE_PT_stats, SUPG_PT_stats,
                   PQE_RT_stats, CSE_RT_stats, SUPG_RT_stats, prob]
+    Path("./results/scalability/").mkdir(parents=True, exist_ok=True)
     pickle.dump(backup_res, open('results/scalability/' + fname + '.pkl', 'wb'))
 
 
@@ -827,41 +834,35 @@ if __name__ == '__main__':
     Pt = Rt = 0.95
     Prob = 0.9
     Dist_t = 0.9
-    Prob_list = [0.85, 0.9, 0.95]
 
-    pre_compile()
+    # 200 * 1 trials
+    num_query = 200
+    for Fname in ['voc', 'icd9_eICU']:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco'
+        Proxy, Oracle = load_data(name=Fname)
+        np.random.seed(0)
+        Index = np.random.choice(range(len(Oracle)), size=num_query, replace=False)
+        exp_PQA_maximal_CR(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
 
-    start = time.time()
-    exp_scalability_test(pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname='coco')
-    end = time.time()
-    print((end - start))
-
+    # 50 * 10 trials
+    num_query = 50
     for Fname in ['voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco']:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco'
-        print('dataset name is ', Fname)
         Proxy, Oracle = load_data(name=Fname)
 
         if Fname == 'coco':
             np.random.seed(1)
-            Samples = np.random.choice(len(Oracle), size=200, replace=False)
+            Samples = np.random.choice(len(Oracle), size=8000, replace=False)
             Oracle = Oracle[Samples]
             Proxy = Proxy[Samples]
             Fname = Fname + '8000'
 
         np.random.seed(0)
         Index = np.random.choice(range(len(Oracle)), size=num_query, replace=False)
-        Budgets = [ceil(len(Oracle) * i / 100) for i in [1, 2, 4, 8, 16]]
 
-        start = time.time()
+        if Fname in ['voc', 'icd9_eICU']:
+            exp_CSC_minimal_cost(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
+            exp_comprehensive_comparison(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
 
-        # 200 * 1 trials
-        exp_PQA_maximal_CR(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
-
-        # # 50 * 10 trials
-        exp_CSC_minimal_cost(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
         exp_CSC_cpu_overhead(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
-
-        exp_comprehensive_comparison(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
         exp_runningtime(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
 
-        end = time.time()
-        print((end - start))
+    exp_scalability_test(pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname='coco', n_query=num_query)

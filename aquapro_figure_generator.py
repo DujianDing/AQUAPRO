@@ -444,52 +444,49 @@ def _plot_scalability_test(s_l, query_type, f, pqe, cse, supg):
 
 
 if __name__ == '__main__':
-    exp_name = 'PQA'
+    # exp_name = 'PQA'
     file_path_prefix = './results/'
 
-    if exp_name == 'PQA':
-        for fname in ['voc', 'icd9_eICU']:
-            file_path = file_path_prefix + exp_name + '/' + fname + '.pkl'
-            fname = f_map(fname)
-            _compact_plot_PQA(f=fname, f_path=file_path)
-    elif exp_name == 'CSC':
-        for fname in ['voc', 'icd9_eICU']:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco8000'
-            file_path = file_path_prefix + exp_name + '/' + fname + '.pkl'
-            fname = f_map(fname)
-            mode_list, pt_cost, pt_success, rt_cost, rt_success, prob = pickle.load(open(file_path, "rb"))
-            _plot_CSA(p=prob, m_list=mode_list, query_type='RT', f=fname, cost_list=rt_cost, success_list=rt_success)
-            _plot_CSA(p=prob, m_list=mode_list, query_type='PT', f=fname, cost_list=pt_cost, success_list=pt_success)
-    elif exp_name == 'overhead':
-        file_list = ['voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco8000']
-        _plot_CSA_overhead(query_type='RT', f_l=file_list, path_prefix=file_path_prefix, exp_n=exp_name)
-        _plot_CSA_overhead(query_type='PT', f_l=file_list, path_prefix=file_path_prefix, exp_n=exp_name)
-    elif exp_name == 'CMPR':
-        for fname in ['voc', 'icd9_eICU']:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco8000'
-            file_path = file_path_prefix + exp_name + '/' + fname + '.pkl'
-            fname = f_map(fname)
-            method_list, scale_list, PQE_PT, CSE_PT_stats, SUPG_PT, PQE_RT, CSE_RT_stats, SUPG_RT, prob = pickle.load(open(file_path, "rb"))
-            _plot_CSE_PQE(p=prob, m_l=method_list, query_type='RT', f=fname, pqe=PQE_RT, cse=CSE_RT_stats, supg=SUPG_RT)
-            _plot_CSE_PQE(p=prob, m_l=method_list, query_type='PT', f=fname, pqe=PQE_PT, cse=CSE_PT_stats, supg=SUPG_PT)
-            _plot_COMP(prob=prob, m_l=method_list, query_type='RT', f=fname, s_l=scale_list,
-                       pqe=PQE_RT, cse=CSE_RT_stats, supg=SUPG_RT)
-            _plot_COMP(prob=prob, m_l=method_list, query_type='PT', f=fname, s_l=scale_list,
-                       pqe=PQE_PT, cse=CSE_PT_stats, supg=SUPG_PT)
-    elif exp_name == 'runningtime':
-        file_list = ['voc', 'coco8000', 'icd9_mimic', 'icd9_eICU', 'jackson10000.csv']
-        _print_running_time(query_type='RT', f_l=file_list, path_prefix=file_path_prefix, exp_n=exp_name)
-        _print_running_time(query_type='PT', f_l=file_list, path_prefix=file_path_prefix, exp_n=exp_name)
-        for fname in []:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco8000'
-            file_path = file_path_prefix + exp_name + '/' + fname + '.pkl'
-            fname = f_map(fname)
-            price_l, PQE_PT_stats, CSE_PT_stats, SUPG_PT_stats, PQE_RT_stats, CSE_RT_stats, SUPG_RT_stats, prob = pickle.load(open(file_path, "rb"))
-            _plot_running_time(prc_l=price_l, query_type='RT', f=fname, pqe=PQE_RT_stats, cse=CSE_RT_stats,
-                               supg=SUPG_RT_stats)
-            _plot_running_time(prc_l=price_l, query_type='PT', f=fname, pqe=PQE_PT_stats, cse=CSE_PT_stats,
-                               supg=SUPG_PT_stats)
-    elif exp_name == 'scalability':
-        for fname in ['coco']:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco8000'
-            file_path = file_path_prefix + exp_name + '/' + fname + '.pkl'
-            fname = f_map(fname)
-            subset_sizes, PQE_PT_stats, CSE_PT_stats, SUPG_PT_stats, PQE_RT_stats, CSE_RT_stats, SUPG_RT_stats, prob = pickle.load(open(file_path, "rb"))
-            _plot_scalability_test(subset_sizes, 'RT', f=fname, pqe=PQE_RT_stats, cse=CSE_RT_stats, supg=SUPG_RT_stats)
-            _plot_scalability_test(subset_sizes, 'PT', f=fname, pqe=PQE_PT_stats, cse=CSE_PT_stats, supg=SUPG_PT_stats)
+    exp_name = 'PQA'
+    for fname in ['voc', 'icd9_eICU']:
+        file_path = file_path_prefix + exp_name + '/' + fname + '.pkl'
+        fname = f_map(fname)
+        _compact_plot_PQA(f=fname, f_path=file_path)
+
+    exp_name = 'CSC'
+    for fname in ['voc', 'icd9_eICU']:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco8000'
+        file_path = file_path_prefix + exp_name + '/' + fname + '.pkl'
+        fname = f_map(fname)
+        mode_list, pt_cost, pt_success, rt_cost, rt_success, prob = pickle.load(open(file_path, "rb"))
+        _plot_CSA(p=prob, m_list=mode_list, query_type='RT', f=fname, cost_list=rt_cost, success_list=rt_success)
+        _plot_CSA(p=prob, m_list=mode_list, query_type='PT', f=fname, cost_list=pt_cost, success_list=pt_success)
+
+    exp_name = 'overhead'
+    file_list = ['voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco8000']
+    _plot_CSA_overhead(query_type='RT', f_l=file_list, path_prefix=file_path_prefix, exp_n=exp_name)
+    _plot_CSA_overhead(query_type='PT', f_l=file_list, path_prefix=file_path_prefix, exp_n=exp_name)
+
+    exp_name = 'CMPR'
+    for fname in ['voc', 'icd9_eICU']:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco8000'
+        file_path = file_path_prefix + exp_name + '/' + fname + '.pkl'
+        fname = f_map(fname)
+        method_list, scale_list, PQE_PT, CSE_PT_stats, SUPG_PT, PQE_RT, CSE_RT_stats, SUPG_RT, prob = pickle.load(open(file_path, "rb"))
+        _plot_CSE_PQE(p=prob, m_l=method_list, query_type='RT', f=fname, pqe=PQE_RT, cse=CSE_RT_stats, supg=SUPG_RT)
+        _plot_CSE_PQE(p=prob, m_l=method_list, query_type='PT', f=fname, pqe=PQE_PT, cse=CSE_PT_stats, supg=SUPG_PT)
+        _plot_COMP(prob=prob, m_l=method_list, query_type='RT', f=fname, s_l=scale_list,
+                   pqe=PQE_RT, cse=CSE_RT_stats, supg=SUPG_RT)
+        _plot_COMP(prob=prob, m_l=method_list, query_type='PT', f=fname, s_l=scale_list,
+                   pqe=PQE_PT, cse=CSE_PT_stats, supg=SUPG_PT)
+
+    exp_name = 'runningtime'
+    file_list = ['voc', 'coco8000', 'icd9_mimic', 'icd9_eICU', 'jackson10000.csv']
+    _print_running_time(query_type='RT', f_l=file_list, path_prefix=file_path_prefix, exp_n=exp_name)
+    _print_running_time(query_type='PT', f_l=file_list, path_prefix=file_path_prefix, exp_n=exp_name)
+
+    exp_name = 'scalability'
+    for fname in ['coco']:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco8000'
+        file_path = file_path_prefix + exp_name + '/' + fname + '.pkl'
+        fname = f_map(fname)
+        subset_sizes, PQE_PT_stats, CSE_PT_stats, SUPG_PT_stats, PQE_RT_stats, CSE_RT_stats, SUPG_RT_stats, prob = pickle.load(open(file_path, "rb"))
+        _plot_scalability_test(subset_sizes, 'RT', f=fname, pqe=PQE_RT_stats, cse=CSE_RT_stats, supg=SUPG_RT_stats)
+        _plot_scalability_test(subset_sizes, 'PT', f=fname, pqe=PQE_PT_stats, cse=CSE_PT_stats, supg=SUPG_PT_stats)

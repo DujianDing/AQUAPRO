@@ -11,6 +11,6 @@ pilot_eps = 0.001
 # CSE-RT [chcked]
 eps = 0.1
 
-# General
-num_query = 50
+# general
 repeat = 10
+
