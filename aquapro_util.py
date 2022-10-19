@@ -5,6 +5,7 @@ import scipy
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cdist
 from scipy.stats import truncnorm, norm
+from scipy.integrate import quad
 from supg.supg.experiments.experiment import run_experiment
 from supg.supg.selector import ApproxQuery
 from numba import njit
@@ -242,5 +243,41 @@ def find_best_sm(D, K, mode, prob):
         print('unknown mode', mode)
 
     return best_s, best_m
+
+
+def baseline_topk_phi_i(proxy_dist, norm_scale, sk, sp):
+    f_sk = 1 - norm.cdf(x=sk, loc=proxy_dist, scale=norm_scale)
+    f_sp = 1 - norm.cdf(x=sp, loc=proxy_dist, scale=norm_scale)
+
+    f_sp = np.clip(f_sp, a_min=1e-8, a_max=None)
+
+    return (1 - f_sk) / f_sp
+
+
+def baseline_topk_pi(proxy_dist, norm_scale, s):
+    f = 1 - norm.cdf(x=s, loc=proxy_dist, scale=norm_scale)
+
+    return np.prod(f)
+
+
+def baseline_topk_topc_tableu(oracle_dist, table_c, k):
+    table_all = np.arange(len(oracle_dist))
+    k2v_c = sorted([(_, oracle_dist[int(_)]) for _ in table_c], key=lambda x: x[1])
+    topk_c = [int(_[0]) for _ in k2v_c[:k]]
+    table_u = np.setdiff1d(table_all, table_c)
+
+    return topk_c, table_u
+
+
+def baseline_topk_xf(sp, sk, p_d, short_dist, norm_scale):
+    def intergrand(x):
+        xf = np.prod(1 - norm.cdf(x=x, loc=short_dist, scale=norm_scale))
+        return norm.pdf(x, loc=p_d, scale=norm_scale) * xf
+
+    intgrl = quad(intergrand, sp, sk)[0]
+
+    term_3 = norm.cdf(x=sp, loc=p_d, scale=norm_scale) * np.prod(1 - norm.cdf(x=sp, loc=short_dist, scale=norm_scale))
+
+    return intgrl + term_3
 
 
