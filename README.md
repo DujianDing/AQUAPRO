@@ -1,6 +1,6 @@
 # On Efficient Approximate Queries over Machine Learning Models
 
-This is the official project page for "On Efficient Approximate Queries over Machine Learning Models".
+This is the codebase for [On Efficient Approximate Queries over Machine Learning Models](https://www.vldb.org/pvldb/vol16/p918-ding.pdf).
 
 # Requirements
 
@@ -16,7 +16,7 @@ You will need the following installed:
 
 To complete the baseline comparison w.r.t. SUPG, you will need to `cd supg/` and follow the installation instructions.
 
-# Reproducing Experiments
+# Reproduce Experiment Results
 
 Run `aquapro.py`. This will generate all experiment results including baseline comparison under `./results`. The whole process can take a few hours to complete. 
 
