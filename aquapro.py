@@ -1195,51 +1195,51 @@ if __name__ == '__main__':
     Prob = 0.9
     Dist_t = 0.9
 
-    # num_query = 100
-    # start_time = time.time()
-    # for Fname in ['voc']:
-    #     Proxy, Oracle = load_data(name=Fname)
-    #     np.random.seed(0)
-    #     Index = np.random.choice(range(len(Oracle)), size=num_query, replace=False)
-    #     exp_compare_topk_PQA(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
-    #     # exp_compare_sample2test_CSE(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
-    #     # exp_compare_PQE_PQA(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
-    #     # exp_compare_CSA_CSE(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
-    #
-    # end_time = time.time()
-    # print('execution time is %.2fs' % (end_time - start_time))
+    num_query = 100
+    start_time = time.time()
+    for Fname in ['voc']:
+        Proxy, Oracle = load_data(name=Fname)
+        np.random.seed(0)
+        Index = np.random.choice(range(len(Oracle)), size=num_query, replace=False)
+        exp_compare_topk_PQA(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
+        exp_compare_sample2test_CSE(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
+        exp_compare_PQE_PQA(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
+        exp_compare_CSA_CSE(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
+
+    end_time = time.time()
+    print('execution time is %.2fs' % (end_time - start_time))
 
 
-    # # 200 * 1 trials
-    # num_query = 200
-    # for Fname in ['voc', 'icd9_eICU']:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco'
-    #     Proxy, Oracle = load_data(name=Fname)
-    #     np.random.seed(0)
-    #     Index = np.random.choice(range(len(Oracle)), size=num_query, replace=False)
-    #     exp_PQA_maximal_CR(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
-    #
+    # 200 * 1 trials
+    num_query = 200
+    for Fname in ['voc', 'icd9_eICU']:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco'
+        Proxy, Oracle = load_data(name=Fname)
+        np.random.seed(0)
+        Index = np.random.choice(range(len(Oracle)), size=num_query, replace=False)
+        exp_PQA_maximal_CR(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
+
     # 50 * 10 trials
     start_time = time.time()
     num_query = 50
-    # for Fname in ['voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco']:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco'
-    #     Proxy, Oracle = load_data(name=Fname)
-    #
-    #     if Fname == 'coco':
-    #         np.random.seed(1)
-    #         Samples = np.random.choice(len(Oracle), size=8000, replace=False)
-    #         Oracle = Oracle[Samples]
-    #         Proxy = Proxy[Samples]
-    #         Fname = Fname + '8000'
-    #
-    #     np.random.seed(0)
-    #     Index = np.random.choice(range(len(Oracle)), size=num_query, replace=False)
-    #
-    #     # if Fname in ['voc', 'icd9_eICU']:
-    #     #     exp_CSC_minimal_cost(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
-    #     #     exp_comprehensive_comparison(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
-    #
-    #     # exp_CSC_cpu_overhead(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
-    #     exp_runningtime(Oracle, Proxy, Index, is_sample2test=True, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
+    for Fname in ['voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco']:  # 'voc', 'icd9_eICU', 'icd9_mimic', 'jackson10000.csv', 'coco'
+        Proxy, Oracle = load_data(name=Fname)
+
+        if Fname == 'coco':
+            np.random.seed(1)
+            Samples = np.random.choice(len(Oracle), size=8000, replace=False)
+            Oracle = Oracle[Samples]
+            Proxy = Proxy[Samples]
+            Fname = Fname + '8000'
+
+        np.random.seed(0)
+        Index = np.random.choice(range(len(Oracle)), size=num_query, replace=False)
+
+        if Fname in ['voc', 'icd9_eICU']:
+            exp_CSC_minimal_cost(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
+            exp_comprehensive_comparison(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
+
+        exp_CSC_cpu_overhead(Oracle, Proxy, Index, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
+        exp_runningtime(Oracle, Proxy, Index, is_sample2test=True, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname=Fname)
 
     exp_scalability_test(is_sample2test=True, pt=Pt, rt=Rt, t=Dist_t, prob=Prob, fname='coco', n_query=num_query)
 
